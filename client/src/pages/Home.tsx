@@ -1,482 +1,466 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2, Gift } from "lucide-react";
-import { useState, useEffect } from "react";
+/**
+ * Нейро-креатор — High-Conversion Landing v3 "Less is More"
+ *
+ * Design Philosophy: "Power through Restraint"
+ * — Only 5 blocks: Hero → Pain → Program → Author → Final CTA
+ * — Every element earns its place by driving registration
+ * — Montserrat 900 headlines, Manrope body, Inter labels
+ * — #ff007f accent used only on the most critical elements
+ * — No decorative noise, no stats bars, no ticker, no bonus cards clutter
+ */
 
+import { useEffect, useState } from "react";
+
+const HERO_PHOTO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663178631916/85w4fVt3EZsep5JQ8rDGvY/freepik_ultrarealistic_fashion_editorial_portrait_midshotf_98769_1c9c5152.jpeg";
+const AUTHOR_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663178631916/85w4fVt3EZsep5JQ8rDGvY/freepik_halfbody_portrait_straight_confident_posture_shoul_98755_ef5e5da1.jpeg";
+
+const REG_URL = "https://codexint.lpxl.ru/";
+
+/* ─── COUNTDOWN ─── */
+function useCountdown() {
+  const target = new Date("2026-03-23T10:00:00");
+  const calc = () => {
+    const diff = target.getTime() - Date.now();
+    if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
+    return {
+      d: Math.floor(diff / 86400000),
+      h: Math.floor((diff % 86400000) / 3600000),
+      m: Math.floor((diff % 3600000) / 60000),
+      s: Math.floor((diff % 60000) / 1000),
+    };
+  };
+  const [t, setT] = useState(calc);
+  useEffect(() => {
+    const id = setInterval(() => setT(calc()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return t;
+}
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/* ─── CTA BUTTON ─── */
+function CTAButton({ label = "Зарегистрироваться бесплатно", size = "lg" }: { label?: string; size?: "lg" | "xl" }) {
+  return (
+    <a
+      href={REG_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`
+        inline-flex items-center justify-center gap-2.5
+        bg-[#ff007f] hover:bg-[#e0006e] active:bg-[#cc0070]
+        text-white font-['Montserrat'] font-black tracking-tight
+        rounded-full transition-all duration-200
+        shadow-[0_6px_28px_rgba(255,0,127,0.38)] hover:shadow-[0_10px_36px_rgba(255,0,127,0.48)]
+        hover:-translate-y-0.5 active:translate-y-0
+        w-full sm:w-auto
+        ${size === "xl"
+          ? "text-base sm:text-lg px-8 sm:px-12 py-4 sm:py-5"
+          : "text-sm sm:text-base px-7 sm:px-10 py-3.5 sm:py-4"}
+      `}
+    >
+      {label}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+        <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </a>
+  );
+}
+
+/* ─── MAIN ─── */
 export default function Home() {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
+  const timer = useCountdown();
+  const [scrolled, setScrolled] = useState(false);
+  const [showSticky, setShowSticky] = useState(false);
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      // Target date: February 26, 2026 at 18:00 MSK
-      const targetDate = new Date(2026, 1, 26, 18, 0, 0).getTime();
-      const now = new Date().getTime();
-      const difference = targetDate - now;
-
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
-        });
-      }
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      setShowSticky(window.scrollY > 500);
     };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-    return () => clearInterval(timer);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const benefits = [
-    "Почему в 2026 без нейро-контента рост замедляется",
-    "Как использовать нейро-контент для привлечения клиентов",
-    "3 модели монетизации нейро-контента в любой нише",
-    "Как превратить просмотры в заявки",
-    "Что отличает тех, кто зарабатывает на ИИ, от тех, кто просто 'пробует'",
-    "Пошаговый план роста дохода через нейро-контент",
-  ];
-
-  // Reorganize benefits for 2-column layout: 1,3,5 in left, 2,4,6 in right
-  const benefitsLeft = [benefits[0], benefits[2], benefits[4]];
-  const benefitsRight = [benefits[1], benefits[3], benefits[5]];
-
-  const bonuses = [
-    "Чек-лист: '5 ошибок, из-за которых нейро-контент не приносит денег'",
-    "Подборка рабочих связок нейросетей для роста и монетизации",
-    "Специальное предложение на обучение AI-CREATOR",
-  ];
-
-  const testimonials = [
-    "/images/testimonial-1.jpg",
-    "/images/testimonial-2.jpg",
-    "/images/testimonial-3.jpg",
-    "/images/testimonial-4.jpg",
-  ];
-
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* ===== HERO SECTION ===== */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-20">
-        {/* Background Neural Network */}
-        <div className="absolute inset-0 opacity-30">
-          <svg className="w-full h-full" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
-            <defs>
-              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#ff007f" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#ff007f" stopOpacity="0.05" />
-              </linearGradient>
-            </defs>
-            <circle cx="100" cy="100" r="3" fill="#ff007f" opacity="0.6" />
-            <circle cx="900" cy="150" r="3" fill="#ff007f" opacity="0.6" />
-            <circle cx="800" cy="800" r="3" fill="#ff007f" opacity="0.6" />
-            <circle cx="200" cy="900" r="3" fill="#ff007f" opacity="0.6" />
-            <circle cx="500" cy="500" r="3" fill="#ff007f" opacity="0.4" />
-            <line x1="100" y1="100" x2="500" y2="500" stroke="#ff007f" strokeWidth="1" opacity="0.2" />
-            <line x1="900" y1="150" x2="500" y2="500" stroke="#ff007f" strokeWidth="1" opacity="0.2" />
-            <line x1="800" y1="800" x2="500" y2="500" stroke="#ff007f" strokeWidth="1" opacity="0.2" />
-            <line x1="200" y1="900" x2="500" y2="500" stroke="#ff007f" strokeWidth="1" opacity="0.2" />
-          </svg>
+    <div className="min-h-screen bg-white overflow-x-hidden">
+
+      {/* ══════════════════════════════════════
+          NAVBAR
+      ══════════════════════════════════════ */}
+      <nav className={`sticky top-0 z-50 bg-white/96 backdrop-blur-md transition-all duration-300 ${scrolled ? "shadow-[0_1px_20px_rgba(0,0,0,0.07)]" : ""}`}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 flex items-center justify-between h-14 sm:h-16">
+          <span className="font-['Montserrat'] font-black text-sm sm:text-base text-black tracking-tight">
+            Нейро<span className="text-[#ff007f]">-</span>креатор
+          </span>
+          <a
+            href={REG_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#ff007f] hover:bg-[#e0006e] text-white font-['Montserrat'] font-bold text-xs sm:text-sm px-4 sm:px-6 py-2 sm:py-2.5 rounded-full transition-all duration-200 whitespace-nowrap shadow-[0_2px_12px_rgba(255,0,127,0.28)]"
+          >
+            Зарегистрироваться
+          </a>
+        </div>
+      </nav>
+
+      {/* ══════════════════════════════════════
+          HERO — split screen
+      ══════════════════════════════════════ */}
+      <section className="relative min-h-[100svh] flex overflow-hidden bg-white">
+
+        {/* Left: text */}
+        <div className="relative z-10 flex flex-col justify-center w-full lg:w-[54%] px-4 sm:px-8 lg:px-16 xl:px-24 pt-8 pb-24 lg:py-16">
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-[#fff0f7] border border-[#ffc0df] rounded-full px-4 py-2 mb-6 w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ff007f] animate-pulse flex-shrink-0" />
+            <span className="font-['Inter'] text-[11px] font-bold tracking-widest uppercase text-[#ff007f] leading-snug">Бесплатный интенсив 23–25 марта</span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="font-['Montserrat'] font-black text-[clamp(2.1rem,9vw,4rem)] text-black leading-[1.07] tracking-tight mb-5">
+            Как создавать<br />
+            <span className="text-[#ff007f]">нейро-контент,</span><br />
+            который растит<br />
+            аудиторию
+          </h1>
+
+          {/* Sub */}
+          <p className="font-['Manrope'] text-[15px] sm:text-[17px] text-gray-500 leading-relaxed mb-7 max-w-[420px]">
+            За 3 дня освоите AI-инструменты и получите систему роста блога — даже если никогда не работали с нейросетями.
+          </p>
+
+          {/* Countdown */}
+          <div className="flex items-center gap-2 mb-7">
+            <span className="font-['Inter'] text-[10px] font-bold tracking-widest uppercase text-gray-400">До старта:</span>
+            {[{ v: pad(timer.d), l: "дн" }, { v: pad(timer.h), l: "ч" }, { v: pad(timer.m), l: "мин" }, { v: pad(timer.s), l: "сек" }].map(({ v, l }) => (
+              <div key={l} className="flex flex-col items-center bg-black rounded-lg px-2.5 py-1.5 min-w-[40px]">
+                <span className="font-['Montserrat'] font-black text-base text-white leading-none tabular-nums">{v}</span>
+                <span className="font-['Inter'] text-[9px] text-white/40 mt-0.5">{l}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <CTAButton size="xl" />
+
+          {/* Micro-trust */}
+          <p className="font-['Inter'] text-[11px] text-gray-400 mt-3">🔒 Бесплатно · Без спама · Онлайн</p>
         </div>
 
-        {/* Mobile Background Image */}
-        <div className="absolute inset-0 lg:hidden opacity-20 pointer-events-none">
+        {/* Right: photo */}
+        <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-[48%] overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-px bg-[#ff007f] z-10" />
           <img
-            src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663178631916/DtKGncOwUlDxCCoD.jpeg"
-            alt="Background"
-            className="w-full h-full object-cover object-center"
+            src={HERO_PHOTO}
+            alt="Ольга Кодинцева"
+            className="w-full h-full object-cover object-top"
           />
-        </div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left Content */}
-            <div className="space-y-6">
-              {/* Date/Time Badge */}
-              <div className="inline-block">
-                <span className="font-body text-xs text-muted-foreground tracking-wide uppercase">
-                  26 февраля • 18:00 (мск)
-                </span>
-              </div>
-
-              {/* Free Badge */}
-              <div className="inline-block">
-                <div className="relative inline-block px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 border-primary bg-gradient-to-r from-primary/20 to-primary/10 backdrop-blur-sm">
-                  <span className="font-display-bold text-2xl sm:text-3xl lg:text-4xl text-primary tracking-wider uppercase font-black">
-                    БЕСПЛАТНЫЙ ВЕБИНАР
-                  </span>
-                </div>
-              </div>
-
-              {/* Main Headline */}
-              <div className="space-y-2">
-                <h1 className="font-display-bold text-3xl sm:text-4xl lg:text-5xl xl:text-6xl leading-tight">
-                  Как вырасти в доходе в 2026 году с помощью <span className="text-primary">нейро-контента</span>
-                </h1>
-              </div>
-
-              {/* Countdown Timer */}
-              <div className="flex gap-3 sm:gap-4 justify-start">
-                <div className="flex flex-col items-center">
-                  <div className="bg-primary/20 border border-primary rounded-lg px-3 sm:px-4 py-2 sm:py-3 min-w-16 sm:min-w-20">
-                    <span className="font-display-bold text-xl sm:text-2xl lg:text-3xl text-primary">
-                      {timeLeft.days}
-                    </span>
-                  </div>
-                  <span className="font-body text-xs sm:text-sm text-muted-foreground mt-2 uppercase tracking-wide">
-                    дни
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="bg-primary/20 border border-primary rounded-lg px-3 sm:px-4 py-2 sm:py-3 min-w-16 sm:min-w-20">
-                    <span className="font-display-bold text-xl sm:text-2xl lg:text-3xl text-primary">
-                      {timeLeft.hours}
-                    </span>
-                  </div>
-                  <span className="font-body text-xs sm:text-sm text-muted-foreground mt-2 uppercase tracking-wide">
-                    часы
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="bg-primary/20 border border-primary rounded-lg px-3 sm:px-4 py-2 sm:py-3 min-w-16 sm:min-w-20">
-                    <span className="font-display-bold text-xl sm:text-2xl lg:text-3xl text-primary">
-                      {timeLeft.minutes}
-                    </span>
-                  </div>
-                  <span className="font-body text-xs sm:text-sm text-muted-foreground mt-2 uppercase tracking-wide">
-                    минуты
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="bg-primary/20 border border-primary rounded-lg px-3 sm:px-4 py-2 sm:py-3 min-w-16 sm:min-w-20">
-                    <span className="font-display-bold text-xl sm:text-2xl lg:text-3xl text-primary">
-                      {timeLeft.seconds}
-                    </span>
-                  </div>
-                  <span className="font-body text-xs sm:text-sm text-muted-foreground mt-2 uppercase tracking-wide">
-                    секунды
-                  </span>
-                </div>
-              </div>
-
-              {/* CTA Button */}
-              <Button
-                asChild
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-black font-display-bold text-base px-6 sm:px-8 py-5 sm:py-6 h-auto w-full sm:w-auto"
-              >
-                <a href="https://t.me/oliacodex_bot" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 whitespace-nowrap">
-                  ЗАРЕГИСТРИРОВАТЬСЯ
-                  <ArrowRight className="w-4 h-4 flex-shrink-0" />
-                </a>
-              </Button>
-            </div>
-
-            {/* Right Image - Desktop Only */}
-            <div className="relative hidden lg:flex items-center justify-center">
-              <div className="relative">
-                <img
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663178631916/DtKGncOwUlDxCCoD.jpeg"
-                  alt="Ольга"
-                  className="w-full h-auto max-w-sm object-contain"
-                />
-              </div>
-            </div>
+          <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent" />
+          <div className="absolute bottom-8 left-8 z-20 bg-black/80 backdrop-blur-sm rounded-xl px-4 py-3">
+            <p className="font-['Montserrat'] font-black text-white text-sm leading-tight">Ольга Кодинцева</p>
+            <p className="font-['Inter'] text-[10px] text-[#ff007f] font-bold tracking-wider uppercase mt-0.5">Эксперт по AI-контенту · 14K+ подписчиков</p>
           </div>
         </div>
       </section>
 
-      {/* ===== WHAT YOU GET SECTION ===== */}
-      <section className="relative py-12 sm:py-16 lg:py-20 border-t border-primary/20">
-        <div className="container mx-auto px-4">
-          <h2 className="font-display-bold text-2xl sm:text-3xl lg:text-4xl text-center mb-8 sm:mb-12 uppercase">
-            Что ты получишь на вебинаре?
-          </h2>
+      {/* ══════════════════════════════════════
+          PAIN — узнаёте себя?
+      ══════════════════════════════════════ */}
+      <section className="py-16 sm:py-24 bg-[#f2f2f2]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-            {/* Left Column */}
-            <div className="space-y-4 lg:space-y-6">
-              {benefitsLeft.map((benefit, idx) => {
-                const actualIdx = idx * 2; // 0, 2, 4
-                return (
-                  <div
-                    key={actualIdx}
-                    className="flex items-start gap-3 p-4 lg:p-6 rounded-lg bg-secondary/50 border border-primary/20 hover:border-primary/50 transition-colors"
-                  >
-                    <div className="flex-shrink-0 w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-primary flex items-center justify-center">
-                      <span className="font-display-bold text-xs lg:text-sm text-black">{actualIdx + 1}</span>
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-body text-xs sm:text-sm lg:text-base text-foreground leading-relaxed">{benefit}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {/* Right Column */}
-            <div className="space-y-4 lg:space-y-6">
-              {benefitsRight.map((benefit, idx) => {
-                const actualIdx = idx * 2 + 1; // 1, 3, 5
-                return (
-                  <div
-                    key={actualIdx}
-                    className="flex items-start gap-3 p-4 lg:p-6 rounded-lg bg-secondary/50 border border-primary/20 hover:border-primary/50 transition-colors"
-                  >
-                    <div className="flex-shrink-0 w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-primary flex items-center justify-center">
-                      <span className="font-display-bold text-xs lg:text-sm text-black">{actualIdx + 1}</span>
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-body text-xs sm:text-sm lg:text-base text-foreground leading-relaxed">{benefit}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== BONUSES SECTION ===== */}
-      <section className="relative py-12 sm:py-16 lg:py-20 border-t border-primary/20">
-        <div className="container mx-auto px-4">
-          <h2 className="font-display-bold text-2xl sm:text-3xl lg:text-4xl text-center mb-2 uppercase">
-            Бонусы для участников
-          </h2>
-          <p className="text-center text-xs sm:text-sm text-primary mb-8 sm:mb-12">
-            Только для зарегистрированных и присутствующих:
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {bonuses.map((bonus, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-3 p-4 lg:p-6 rounded-lg bg-primary/10 border border-primary/30"
-              >
-                <Gift className="w-5 h-5 lg:w-6 lg:h-6 text-primary flex-shrink-0" />
-                <p className="font-body text-xs sm:text-sm lg:text-base text-foreground">{bonus}</p>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-center text-xs sm:text-sm text-muted-foreground mt-6 sm:mt-8">
-            Бонусы выдаются только тем, кто будет онлайн.
-          </p>
-        </div>
-      </section>
-
-      {/* ===== TESTIMONIALS SECTION ===== */}
-      <section className="relative py-12 sm:py-16 lg:py-20 border-t border-primary/20">
-        <div className="container mx-auto px-4">
-          <h2 className="font-display-bold text-2xl sm:text-3xl lg:text-4xl text-center mb-8 sm:mb-12 uppercase">
-            Отзывы учеников
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-            {testimonials.map((testimonial, idx) => (
-              <div
-                key={idx}
-                className="relative rounded-lg overflow-hidden border border-primary/20 hover:border-primary/50 transition-colors"
-              >
-                <img
-                  src={testimonial}
-                  alt={`Testimonial ${idx + 1}`}
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== FINAL CTA SECTION ===== */}
-      <section className="relative py-12 sm:py-16 lg:py-20 border-t border-primary/20">
-        <div className="container mx-auto px-4">
-          <div className="bg-gradient-to-r from-primary/30 to-primary/10 rounded-2xl p-6 sm:p-8 lg:p-12 border border-primary/30">
-            {/* Content */}
-            <div className="space-y-4 sm:space-y-6 max-w-2xl">
-              <h2 className="font-display-bold text-2xl sm:text-3xl lg:text-4xl uppercase leading-tight">
-                НЕ УПУСТИ СВОЙ ШАНС!
+            {/* Pain list */}
+            <div>
+              <p className="font-['Inter'] text-[10px] font-bold tracking-widest uppercase text-[#ff007f] mb-4">Узнаёте себя?</p>
+              <h2 className="font-['Montserrat'] font-black text-[clamp(1.9rem,6vw,2.8rem)] text-black leading-tight mb-8">
+                Блог перестал расти.<br />Охваты падают.
               </h2>
-              <p className="font-body text-sm sm:text-base lg:text-lg text-muted-foreground">
-                2026 — год, когда ИИ становится нормой. Вопрос не в том, использовать ли нейро-контент. Вопрос — кто на этом заработает. Если ты хочешь вырасти в доходе и не остаться в стороне — регистрируйся сейчас.
-              </p>
-              <Button
-                asChild
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-black font-display-bold text-base px-6 sm:px-8 py-5 sm:py-6 h-auto w-full sm:w-auto min-w-0"
-              >
-                <a href="https://t.me/oliacodex_bot" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden text-ellipsis">
-                  ЗАРЕГИСТРИРОВАТЬСЯ
-                  <ArrowRight className="w-4 h-4 flex-shrink-0" />
-                </a>
-              </Button>
+              <ul className="space-y-4">
+                {[
+                  "Публикуете контент, а подписчики не приходят",
+                  "Алгоритмы изменились — старые методы больше не работают",
+                  "Конкуренты растут быстрее, хотя контент у вас не хуже",
+                  "Тратите часы на посты, а охваты всё равно падают",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-white border border-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round"/></svg>
+                    </span>
+                    <span className="font-['Manrope'] text-[15px] text-gray-700 leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
+
+            {/* Solution card */}
+            <div className="bg-black rounded-2xl p-8 sm:p-10">
+              <div className="w-10 h-10 bg-[#ff007f] rounded-xl flex items-center justify-center mb-5">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+              <h3 className="font-['Montserrat'] font-black text-xl sm:text-2xl text-white mb-3 leading-snug">
+                Решение — нейро-контент
+              </h3>
+              <p className="font-['Manrope'] text-[15px] text-white/50 leading-relaxed mb-6">
+                Блогеры, которые начали использовать AI-инструменты, выросли в 3–5 раз быстрее тех, кто работает по-старому.
+              </p>
+              <div className="space-y-3">
+                {[
+                  { label: "Охваты с нейро-контентом", val: 87 },
+                  { label: "Рост подписчиков", val: 73 },
+                  { label: "Вовлечённость аудитории", val: 91 },
+                ].map((row) => (
+                  <div key={row.label}>
+                    <div className="flex justify-between mb-1.5">
+                      <span className="font-['Inter'] text-[11px] text-white/40">{row.label}</span>
+                      <span className="font-['Montserrat'] font-bold text-[11px] text-[#ff007f]">+{row.val}%</span>
+                    </div>
+                    <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-[#ff007f] rounded-full" style={{ width: `${row.val}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* ===== SPEAKER SECTION ===== */}
-      <section className="relative py-12 sm:py-16 lg:py-20 border-t border-primary/20">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left Content */}
-            <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
-              <div className="space-y-3 sm:space-y-4">
-                <h3 className="font-display-bold text-xl sm:text-2xl lg:text-3xl text-primary">
-                  Ольга | olia.codex
-                </h3>
-                <p className="font-body text-xs sm:text-sm text-muted-foreground">AI-креатор, эксперт по реалистичному нейро-контенту</p>
-                <div className="space-y-2 font-body text-sm sm:text-base text-muted-foreground">
-                  <p>• 12 000 подписчиков набраны только за счёт нейро-контента</p>
-                  <p>• Миллионные охваты без рекламы</p>
-                  <p>• Обучает созданию нейро-контента, который приводит заявки</p>
-                  <p>• Ученики зарабатывают уже на первых этапах обучения</p>
-                  <p>• Работает с экспертами, блогерами и брендами</p>
-                </div>
-                <p className="font-body text-xs sm:text-sm text-primary italic pt-2">Показывает не «как генерировать», а как выстроить систему: контент → внимание → заявки → деньги.</p>
-              </div>
-            </div>
+      {/* ══════════════════════════════════════
+          PROGRAM — 3 дня
+      ══════════════════════════════════════ */}
+      <section className="py-16 sm:py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8">
 
-            {/* Right Image */}
-            <div className="relative order-1 lg:order-2 flex items-center justify-center">
-              <div className="relative w-full max-w-md">
-                {/* Image with gradient fade */}
-                <div className="relative overflow-hidden rounded-2xl shadow-2xl">
-                  <img
-                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663178631916/lCpyhARZgpOZjBQh.jpeg"
-                    alt="Ольга"
-                    className="w-full h-auto object-cover"
-                  />
-                  {/* Gradient fade to black at bottom */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80 rounded-2xl"></div>
-                  
-                  {/* Text overlay that fades in */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 text-white">
-                    <h3 className="font-display-bold text-lg sm:text-xl text-primary mb-2">
-                      Ольга
-                    </h3>
-                    <p className="font-body text-xs sm:text-sm text-white/90">
-                      AI-креатор и эксперт
-                    </p>
+          <div className="mb-10 sm:mb-14">
+            <p className="font-['Inter'] text-[10px] font-bold tracking-widest uppercase text-[#ff007f] mb-3">Программа</p>
+            <h2 className="font-['Montserrat'] font-black text-[clamp(1.9rem,6vw,2.8rem)] text-black leading-tight">
+              3 дня — 3 шага к росту
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              {
+                day: "День 1", date: "23 марта",
+                title: "Почему нейро-контент растёт быстрее обычного",
+                topics: ["Что такое нейро-контент и почему он работает", "Как алгоритмы реагируют на AI-визуал", "Примеры блогов, которые выросли с нейросетями", "Какие инструменты использовать прямо сейчас"],
+              },
+              {
+                day: "День 2", date: "24 марта",
+                title: "Как создавать реалистичный нейро-контент",
+                topics: ["Пошаговое создание AI-изображений и видео", "Промпты, которые дают результат с первого раза", "Как сделать контент узнаваемым и брендовым", "Практика: создаём первый нейро-пост"],
+              },
+              {
+                day: "День 3", date: "25 марта",
+                title: "Как превратить контент в рост блога",
+                topics: ["Система публикаций, которая привлекает подписчиков", "Как монетизировать нейро-контент", "Контент-план на месяц с нейросетями", "Разбор работ участников"],
+              },
+            ].map((card, i) => (
+              <div key={card.day} className="grid grid-cols-1 lg:grid-cols-[160px_1fr] border border-gray-100 hover:border-[#ff007f]/40 rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
+                <div className="bg-black px-6 py-5 lg:py-8 flex lg:flex-col justify-between items-center lg:items-start gap-4 lg:gap-0">
+                  <div>
+                    <p className="font-['Montserrat'] font-black text-[#ff007f] text-xs tracking-wider uppercase">{card.day}</p>
+                    <p className="font-['Inter'] text-[11px] text-white/30 mt-0.5">{card.date}</p>
+                  </div>
+                  <span className="font-['Montserrat'] font-black text-[64px] text-white/5 leading-none select-none hidden lg:block">{i + 1}</span>
+                  <span className="font-['Montserrat'] font-black text-3xl text-white/10 leading-none select-none lg:hidden">{i + 1}</span>
+                </div>
+                <div className="px-6 sm:px-8 py-6 sm:py-7 bg-white">
+                  <h3 className="font-['Montserrat'] font-black text-base sm:text-lg text-black mb-4 leading-snug">{card.title}</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {card.topics.map((t) => (
+                      <div key={t} className="flex items-start gap-2">
+                        <span className="w-1 h-1 rounded-full bg-[#ff007f] flex-shrink-0 mt-2" />
+                        <span className="font-['Manrope'] text-[13px] text-gray-500 leading-relaxed">{t}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
+            ))}
+          </div>
+
+          {/* Mid CTA */}
+          <div className="mt-10 flex justify-center">
+            <CTAButton label="Хочу попасть на интенсив" size="xl" />
           </div>
         </div>
       </section>
 
-      {/* ===== FAQ SECTION ===== */}
-      <section className="relative py-12 sm:py-16 lg:py-20 border-t border-primary/20">
-        <div className="container mx-auto px-4">
-          <h2 className="font-display-bold text-2xl sm:text-3xl lg:text-4xl text-center mb-8 sm:mb-12 uppercase">
-            Часто задаваемые вопросы
+      {/* ══════════════════════════════════════
+          AUTHOR
+      ══════════════════════════════════════ */}
+      <section className="py-16 sm:py-24 bg-[#f2f2f2]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-10 lg:gap-16 items-center">
+
+            {/* Photo */}
+            <div className="relative mx-auto lg:mx-0 w-[220px] sm:w-[280px] lg:w-full">
+              <div className="rounded-2xl overflow-hidden aspect-[3/4] shadow-[0_24px_60px_rgba(0,0,0,0.12)]">
+                <img src={AUTHOR_IMG} alt="Ольга Кодинцева" className="w-full h-full object-cover object-top" />
+              </div>
+              <div className="absolute -bottom-4 -right-2 sm:-right-4 bg-[#ff007f] text-white rounded-xl px-4 py-3 shadow-[0_8px_24px_rgba(255,0,127,0.4)]">
+                <span className="block font-['Montserrat'] font-black text-2xl leading-none">14K+</span>
+                <span className="font-['Manrope'] text-[10px] font-semibold opacity-90">подписчиков</span>
+              </div>
+            </div>
+
+            {/* Text */}
+            <div className="pt-8 lg:pt-0">
+              <p className="font-['Inter'] text-[10px] font-bold tracking-widest uppercase text-[#ff007f] mb-4">Об авторе</p>
+              <h2 className="font-['Montserrat'] font-black text-[clamp(1.9rem,6vw,2.8rem)] text-black leading-tight mb-2">Ольга Кодинцева</h2>
+              <p className="font-['Manrope'] text-sm text-gray-400 mb-6">Эксперт по нейросетям и визуальному контенту</p>
+              <p className="font-['Manrope'] text-[15px] text-gray-700 leading-relaxed mb-8">
+                Прошла путь от нулевого блога до 14 000 подписчиков, используя исключительно нейро-контент. Создала авторскую программу «Нейро-креатор» и помогает блогерам, экспертам и предпринимателям расти через AI-инструменты.
+              </p>
+              <div className="space-y-3">
+                {[
+                  "+14 000 подписчиков через нейро-контент без рекламного бюджета",
+                  "Создатель программы «Нейро-креатор» — авторская методология роста",
+                  "Обучает созданию реалистичного AI-контента, который работает",
+                ].map((a) => (
+                  <div key={a} className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-[#ff007f] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </span>
+                    <span className="font-['Manrope'] text-[14px] text-gray-700 leading-relaxed">{a}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          BONUSES — compact
+      ══════════════════════════════════════ */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8">
+          <div className="mb-8">
+            <p className="font-['Inter'] text-[10px] font-bold tracking-widest uppercase text-[#ff007f] mb-3">Бонусы участникам</p>
+            <h2 className="font-['Montserrat'] font-black text-[clamp(1.7rem,5vw,2.4rem)] text-black leading-tight">
+              Каждый участник получит
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {[
+              { icon: "🛠️", title: "Список нейросетей", desc: "Лучшие AI-инструменты с инструкциями" },
+              { icon: "🎬", title: "Примеры роликов", desc: "Нейро-видео и рилсы, которые набирают охваты" },
+              { icon: "📝", title: "Готовые промпты", desc: "Для постов, рилсов и сториз — копируй и запускай" },
+            ].map((b) => (
+              <div key={b.title} className="flex items-start gap-4 bg-[#f2f2f2] rounded-xl p-5">
+                <span className="text-2xl flex-shrink-0">{b.icon}</span>
+                <div>
+                  <p className="font-['Montserrat'] font-bold text-sm text-black mb-1">{b.title}</p>
+                  <p className="font-['Manrope'] text-[13px] text-gray-500 leading-relaxed">{b.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          FINAL CTA
+      ══════════════════════════════════════ */}
+      <section className="py-12 sm:py-20 bg-black">
+        <div className="max-w-2xl mx-auto px-4 sm:px-8 text-center">
+
+          <p className="font-['Inter'] text-[10px] font-bold tracking-widest uppercase text-[#ff007f] mb-5">Регистрация</p>
+          <h2 className="font-['Montserrat'] font-black text-[clamp(2rem,8vw,3.2rem)] text-white leading-tight mb-3">
+            Зарегистрируйтесь<br />
+            <span className="text-[#ff007f]">бесплатно</span>
           </h2>
+          <p className="font-['Manrope'] text-sm text-white/40 mb-8">23–25 марта · Онлайн · 3 дня</p>
 
-          <div className="space-y-4 max-w-3xl mx-auto">
-            <details className="group border border-primary/20 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-primary/50 transition-colors">
-              <summary className="font-display-bold text-sm sm:text-base lg:text-lg flex items-center justify-between">
-                Это подойдёт новичкам?
-                <span className="text-primary group-open:rotate-180 transition-transform">▼</span>
-              </summary>
-              <p className="font-body text-xs sm:text-sm lg:text-base text-muted-foreground mt-4">
-                Да. Всё объясняется простым языком, без сложных терминов.
-              </p>
-            </details>
-
-            <details className="group border border-primary/20 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-primary/50 transition-colors">
-              <summary className="font-display-bold text-sm sm:text-base lg:text-lg flex items-center justify-between">
-                Нужно ли уметь работать с нейросетями?
-                <span className="text-primary group-open:rotate-180 transition-transform">▼</span>
-              </summary>
-              <p className="font-body text-xs sm:text-sm lg:text-base text-muted-foreground mt-4">
-                Нет. Ты получишь базовое понимание и чёткий план действий.
-              </p>
-            </details>
-
-            <details className="group border border-primary/20 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-primary/50 transition-colors">
-              <summary className="font-display-bold text-sm sm:text-base lg:text-lg flex items-center justify-between">
-                Подойдёт ли это моей нише?
-                <span className="text-primary group-open:rotate-180 transition-transform">▼</span>
-              </summary>
-              <p className="font-body text-xs sm:text-sm lg:text-base text-muted-foreground mt-4">
-                Да. Принципы работают для экспертов, специалистов, блогеров и предпринимателей.
-              </p>
-            </details>
-
-            <details className="group border border-primary/20 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-primary/50 transition-colors">
-              <summary className="font-display-bold text-sm sm:text-base lg:text-lg flex items-center justify-between">
-                Будет ли запись?
-                <span className="text-primary group-open:rotate-180 transition-transform">▼</span>
-              </summary>
-              <p className="font-body text-xs sm:text-sm lg:text-base text-muted-foreground mt-4">
-                Да, но бонусы получат только участники онлайн.
-              </p>
-            </details>
+          {/* Countdown */}
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <span className="font-['Inter'] text-[10px] font-bold tracking-widest uppercase text-white/30">До старта:</span>
+            {[{ v: pad(timer.d), l: "дн" }, { v: pad(timer.h), l: "ч" }, { v: pad(timer.m), l: "мин" }, { v: pad(timer.s), l: "сек" }].map(({ v, l }) => (
+              <div key={l} className="flex flex-col items-center bg-white/10 rounded-lg px-3 py-2 min-w-[46px]">
+                <span className="font-['Montserrat'] font-black text-lg text-white leading-none tabular-nums">{v}</span>
+                <span className="font-['Inter'] text-[9px] text-white/30 mt-0.5">{l}</span>
+              </div>
+            ))}
           </div>
+
+          <CTAButton size="xl" />
+          <p className="font-['Inter'] text-[11px] text-white/25 mt-4">🔒 Бесплатно · Без спама · Онлайн</p>
         </div>
       </section>
 
-      {/* ===== FOOTER ===== */}
-      <footer className="relative py-8 sm:py-12 border-t border-primary/20 bg-black/50">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
-            {/* Brand */}
-            <div className="space-y-2">
-              <h3 className="font-display-bold text-lg sm:text-xl text-primary">AI CODEX</h3>
-              <p className="font-body text-xs sm:text-sm text-muted-foreground">
-                Школа нейросетей и нейро-контента
-              </p>
+      {/* ══════════════════════════════════════
+          FOOTER
+      ══════════════════════════════════════ */}
+      <footer className="bg-black border-t border-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+
+            <div>
+              <span className="font-['Montserrat'] font-black text-base text-white">
+                Нейро<span className="text-[#ff007f]">-</span>креатор
+              </span>
+              <p className="font-['Manrope'] text-xs text-white/30 mt-2 leading-relaxed">Школа нейросетей и нейро-контента</p>
             </div>
-            {/* Contacts */}
-            <div className="space-y-2">
-              <h4 className="font-display-bold text-base sm:text-lg uppercase">Контакты</h4>
-              <div className="space-y-1 font-body text-xs sm:text-sm text-muted-foreground">
-                <p>Instagram: <a href="https://instagram.com/olia.codex" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@olia.codex</a></p>
-                <p>Telegram: <a href="https://t.me/olia_codex" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@olia_codex</a></p>
+
+            <div>
+              <p className="font-['Inter'] text-[10px] font-bold tracking-widest uppercase text-white/20 mb-3">Контакты</p>
+              <div className="space-y-2">
+                <a href="https://instagram.com/olia.codex" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-['Manrope'] text-xs text-white/40 hover:text-[#ff007f] transition-colors">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.8"/><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+                  @olia.codex
+                </a>
+                <a href="https://t.me/olia_codex" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-['Manrope'] text-xs text-white/40 hover:text-[#ff007f] transition-colors">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21.5 3L2 10.5l6.5 2.5L21.5 3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/><path d="M8.5 13L11 21l3-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M8.5 13l6 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+                  @olia_codex
+                </a>
               </div>
             </div>
-            {/* Legal */}
-            <div className="space-y-2">
-              <h4 className="font-display-bold text-base sm:text-lg uppercase">Юридическая информация</h4>
-              <div className="space-y-1 font-body text-xs sm:text-sm text-muted-foreground">
-                <p>ИП КОДИНЦЕВА ОЛЬГА ДМИТРИЕВНА</p>
-                <p>ИНН 667118064398</p>
-                <p>ОГРНИП 322665800198411</p>
-              </div>
+
+            <div>
+              <p className="font-['Inter'] text-[10px] font-bold tracking-widest uppercase text-white/20 mb-3">Юридическая информация</p>
+              <p className="font-['Manrope'] text-[11px] text-white/20 leading-relaxed">ИП КОДИНЦЕВА ОЛЬГА ДМИТРИЕВНА<br />ИНН 667118064398<br />ОГРНИП 322665800198411</p>
             </div>
+
           </div>
-          {/* Bottom Links and Copyright */}
-          <div className="border-t border-primary/20 pt-6 sm:pt-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-              <div className="flex flex-wrap gap-2 sm:gap-4 font-body text-xs sm:text-sm">
-                <a href="https://disk.yandex.ru/i/xlpfh6YDYAuIig" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                  Политика конфиденциальности
+        </div>
+
+        <div className="border-t border-white/5">
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="font-['Inter'] text-[10px] text-white/15">© 2026 Ольга Кодинцева · Все права защищены</p>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
+              {["Политика конфиденциальности", "Публичная оферта", "Обработка данных", "Рассылка"].map((label) => (
+                <a key={label} href="#" className="font-['Inter'] text-[10px] text-white/20 hover:text-[#ff007f] transition-colors whitespace-nowrap">
+                  {label}
                 </a>
-                <span className="text-muted-foreground">•</span>
-                <a href="https://disk.yandex.ru/i/HV-uoW9wA9ZIZA" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                  Публичная оферта
-                </a>
-                <span className="text-muted-foreground">•</span>
-                <a href="https://disk.yandex.ru/i/Q41RGOoSp1u5kw" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                  Обработка данных
-                </a>
-                <span className="text-muted-foreground">•</span>
-                <a href="https://disk.yandex.ru/i/Q41RGOoSp1u5kw" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                  Рассылка
-                </a>
-              </div>
+              ))}
             </div>
-            <p className="font-body text-xs sm:text-sm text-muted-foreground">
-              © AI CODEX. Все права защищены
-            </p>
           </div>
         </div>
       </footer>
+
+      {/* ══════════════════════════════════════
+          STICKY MOBILE CTA
+      ══════════════════════════════════════ */}
+      <div className={`fixed bottom-0 left-0 right-0 z-50 sm:hidden transition-all duration-300 ${showSticky ? "translate-y-0" : "translate-y-full"}`}>
+        <div className="bg-white border-t border-gray-100 px-4 py-3 shadow-[0_-6px_24px_rgba(0,0,0,0.1)]">
+          <a
+            href={REG_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3.5 bg-[#ff007f] text-white font-['Montserrat'] font-black text-sm rounded-xl shadow-[0_4px_16px_rgba(255,0,127,0.35)] flex items-center justify-center gap-2"
+          >
+            Зарегистрироваться бесплатно →
+          </a>
+        </div>
+      </div>
+
     </div>
   );
 }
